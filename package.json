@@ -4,7 +4,8 @@
   "description": "A team of AI agents for product research and evaluation",
   "main": "src/index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest && cucumber-js",
+    "test:jest": "jest",
     "test:bdd": "cucumber-js",
     "build": "tsc",
     "start": "node dist/index.js",

@@ -1,0 +1,49 @@
+graph TD
+    subgraph "AgentZero Architecture"
+        subgraph "Google Vertex AI Agent Engine"
+            Orchestrator[Orchestrator Agent<br>Built with Agent Development Kit]
+            
+            subgraph "Specialized Agents"
+                Research[Product Research Agent<br>Uses RAG Engine]
+                Market[Market Analysis Agent<br>Grounding with Google Search]
+                Sales[Sales Opportunity Agent<br>Function Calling]
+                Evaluation[Product Evaluation Agent<br>With OpenTelemetry Tracing]
+            end
+            
+            subgraph "Tool Integration"
+                BigQuery[BigQuery Tool<br>Data Analysis]
+                Search[Google Search Tool<br>Web Research]
+                Storage[Cloud Storage Tool<br>Media & Documents]
+                Custom[Custom Tool<br>For Specialized Tasks]
+            end
+            
+            Orchestrator --> Research
+            Orchestrator --> Market
+            Orchestrator --> Sales
+            Orchestrator --> Evaluation
+            
+            Research --> BigQuery
+            Research --> Storage
+            Market --> Search
+            Market --> BigQuery
+            Sales --> Custom
+            Sales --> Search
+            Evaluation --> Storage
+            Evaluation --> Custom
+        end
+        
+        User[User] --> Orchestrator
+        Orchestrator --> Results[Product Recommendations]
+    end
+    
+    style Orchestrator fill:#6495ED,stroke:#333,stroke-width:2px
+    style Research fill:#90EE90,stroke:#333,stroke-width:1px
+    style Market fill:#90EE90,stroke:#333,stroke-width:1px  
+    style Sales fill:#90EE90,stroke:#333,stroke-width:1px
+    style Evaluation fill:#90EE90,stroke:#333,stroke-width:1px
+    style BigQuery fill:#FFD700,stroke:#333,stroke-width:1px
+    style Search fill:#FFD700,stroke:#333,stroke-width:1px
+    style Storage fill:#FFD700,stroke:#333,stroke-width:1px
+    style Custom fill:#FFD700,stroke:#333,stroke-width:1px
+    style User fill:#FF6347,stroke:#333,stroke-width:1px
+    style Results fill:#FF6347,stroke:#333,stroke-width:1px 
