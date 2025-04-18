@@ -1,17 +1,17 @@
 steps:
 # 1. Install dependencies
-- name: 'gcr.io/cloud-builders/npm:node20'
+- name: 'gcr.io/cloud-builders/npm:node-18'
   args: ['install']
   id: 'Install Dependencies'
 
 # 2. Run Jest unit tests with JUnit reporter for better CI integration
-- name: 'gcr.io/cloud-builders/npm:node20'
+- name: 'gcr.io/cloud-builders/npm:node-18'
   args: ['run', 'test:jest:ci']
   id: 'Run Jest Tests'
   waitFor: ['Install Dependencies']
 
 # 3. Run Cucumber BDD tests with proper formatter for CI
-- name: 'gcr.io/cloud-builders/npm:node20'
+- name: 'gcr.io/cloud-builders/npm:node-18'
   args: ['run', 'test:bdd:ci']
   id: 'Run Cucumber Tests'
   waitFor: ['Install Dependencies']
