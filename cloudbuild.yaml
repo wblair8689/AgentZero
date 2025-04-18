@@ -44,6 +44,13 @@ steps:
 #   waitFor: ['Tag Image']
 
 
+# Configure the build options - Required for service account
+options:
+  logging: CLOUD_LOGGING_ONLY # Required when a service account is specified
+  # Alternative options if needed:
+  # logging: NONE
+  # default_logs_bucket_behavior: REGIONAL_USER_OWNED_BUCKET
+
 # Define substitution variables (can be set in triggers or at build time)
 substitutions:
   _SERVICE_NAME: 'agentzero-orchestrator' # Example service name - CHANGE THIS
