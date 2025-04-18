@@ -1,0 +1,3 @@
+# Placeholder for Orchestrator Agent requirements
+google-cloud-aiplatform
+# Add other dependencies like Flask, FastAPI, Langchain etc. as needed 

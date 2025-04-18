@@ -1,4 +1,3 @@
-@orchestrator
 Feature: Orchestrator Agent Core Functionality
 
   As a user of the AgentZero system
