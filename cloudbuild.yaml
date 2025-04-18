@@ -5,12 +5,16 @@ steps:
   id: 'Install Dependencies'
 
 # 2. Run tests
-# Add specific test commands here (e.g., unit, integration)
-# This example uses Jest and Cucumber based on PROJECT_STATUS.md
+# Split Jest and Cucumber tests for better visibility
 - name: 'gcr.io/cloud-builders/npm'
-  args: ['run', 'test'] # Assumes 'test' script in package.json runs Jest/Cucumber
-  id: 'Run Tests'
-  waitFor: ['Install Dependencies'] # Ensure dependencies are installed first
+  args: ['run', 'test:jest', '--', '--verbose']
+  id: 'Run Jest Tests'
+  waitFor: ['Install Dependencies']
+
+- name: 'gcr.io/cloud-builders/npm'
+  args: ['run', 'test:bdd', '--', '--format=progress']
+  id: 'Run Cucumber Tests'
+  waitFor: ['Install Dependencies']
 
 # 3. Deploy to Cloud Run using Source Deployment
 # Cloud Build automatically builds the container from source and deploys it.
