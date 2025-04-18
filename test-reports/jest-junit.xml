@@ -1,7 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="1" failures="0" errors="0" time="0.72">
-  <testsuite name="Example Test Suite" errors="0" failures="0" skipped="0" timestamp="2025-04-18T19:44:58" time="0.564" tests="1">
-    <testcase classname="Example Test Suite" name="should pass this example test" time="0.002">
+<testsuites name="jest tests" tests="9" failures="0" errors="0" time="0.242">
+  <testsuite name="OrchestratorAgent" errors="0" failures="0" skipped="0" timestamp="2025-04-18T22:47:36" time="0.107" tests="9">
+    <testcase classname="OrchestratorAgent › initialization" name="should create an agent with the specified name" time="0.001">
+    </testcase>
+    <testcase classname="OrchestratorAgent › initialization" name="should not be ready initially" time="0">
+    </testcase>
+    <testcase classname="OrchestratorAgent › initialization" name="should be ready after initialization" time="0">
+    </testcase>
+    <testcase classname="OrchestratorAgent › specialized agent registration" name="should register a specialized agent" time="0.001">
+    </testcase>
+    <testcase classname="OrchestratorAgent › specialized agent registration" name="should throw an error when delegating to non-existent agent" time="0.006">
+    </testcase>
+    <testcase classname="OrchestratorAgent › specialized agent registration" name="should delegate tasks to specialized agents" time="0">
+    </testcase>
+    <testcase classname="OrchestratorAgent › query processing" name="should route product queries to the ProductResearch agent" time="0.001">
+    </testcase>
+    <testcase classname="OrchestratorAgent › query processing" name="should route market queries to the MarketAnalysis agent" time="0">
+    </testcase>
+    <testcase classname="OrchestratorAgent › query processing" name="should handle queries for non-existing agent types" time="0.001">
     </testcase>
   </testsuite>
 </testsuites>

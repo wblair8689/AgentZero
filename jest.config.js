@@ -1,10 +1,18 @@
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  testMatch: ['**/__tests__/**/*.+(ts|tsx|js)', '**/?(*.)+(spec|test).+(ts|tsx|js)'],
+  // Transform ESM modules in node_modules
+  transformIgnorePatterns: [
+    "/node_modules/(?!chai)"
+  ],
   transform: {
-    '^.+\.(ts|tsx)$': 'ts-jest',
+    "^.+\\.js$": "babel-jest"
   },
+  // Set test environment
+  testEnvironment: "node",
+  // Specify test match pattern
+  testMatch: [
+    "**/test/**/*.test.js"
+  ],
+  preset: 'ts-jest',
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',
