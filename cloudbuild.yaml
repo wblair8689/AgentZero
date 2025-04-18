@@ -4,19 +4,19 @@ steps:
   args: ['install']
   id: 'Install Dependencies'
 
-# 2. Run tests
-# Split Jest and Cucumber tests for better visibility
+# 2. Run Jest unit tests with JUnit reporter for better CI integration
 - name: 'gcr.io/cloud-builders/npm'
-  args: ['run', 'test:jest', '--', '--verbose']
+  args: ['run', 'test:jest:ci']
   id: 'Run Jest Tests'
   waitFor: ['Install Dependencies']
 
+# 3. Run Cucumber BDD tests with proper formatter for CI
 - name: 'gcr.io/cloud-builders/npm'
-  args: ['run', 'test:bdd', '--', '--format=progress']
+  args: ['run', 'test:bdd:ci']
   id: 'Run Cucumber Tests'
   waitFor: ['Install Dependencies']
 
-# 3. Deploy to Cloud Run using Source Deployment
+# 4. Deploy to Cloud Run (only if tests pass)
 # Cloud Build automatically builds the container from source and deploys it.
 # Requires appropriate IAM permissions for the Cloud Build service account.
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -33,20 +33,13 @@ steps:
     # - '--image=ARTIFACT_REGISTRY/${PROJECT_ID}/${_SERVICE_NAME}/image-name:$COMMIT_SHA' 
     # Optional: Add other Cloud Run flags as needed (e.g., --allow-unauthenticated, --port)
   id: 'Deploy to Cloud Run'
-  waitFor: ['Run Tests'] # Only deploy if tests pass
+  waitFor: ['Run Jest Tests', 'Run Cucumber Tests'] # Wait for both test steps to complete
 
-# Optional: Tag the image in Artifact Registry for clarity (if not using default naming)
-# - name: 'gcr.io/cloud-builders/docker'
-#   args: ['tag', 'gcr.io/${PROJECT_ID}/${_SERVICE_NAME}', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_SERVICE_NAME}:$COMMIT_SHA']
-#   id: 'Tag Image'
-#   waitFor: ['Deploy to Cloud Run']
-
-# Optional: Push the tagged image (redundant if Cloud Run source deploy handles it)
-# - name: 'gcr.io/cloud-builders/docker'
-#   args: ['push', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_SERVICE_NAME}:$COMMIT_SHA']
-#   id: 'Push Image'
-#   waitFor: ['Tag Image']
-
+# 5. Store test reports as build artifacts
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['cp', '-r', 'test-reports/', 'gs://${_ARTIFACTS_BUCKET}/test-reports/${BUILD_ID}/']
+  id: 'Store Test Reports'
+  waitFor: ['Run Jest Tests', 'Run Cucumber Tests']
 
 # Configure the build options - Required for service account
 options:
@@ -59,6 +52,7 @@ options:
 substitutions:
   _SERVICE_NAME: 'agentzero-orchestrator' # Example service name - CHANGE THIS
   _REGION: 'us-central1' # Example region - CHANGE THIS
+  _ARTIFACTS_BUCKET: '${PROJECT_ID}_cloudbuild' # Default bucket for storing artifacts
   # _ARTIFACT_REGISTRY_REPO: 'my-agent-repo' # Example repo name - UNCOMMENT AND CHANGE IF NEEDED
 
 # Configure the build timeout (optional)
@@ -69,3 +63,9 @@ timeout: '1200s' # 20 minutes
 # The image name format might vary slightly based on source deploy defaults.
 # images:
 # - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_SERVICE_NAME}' # Adjust if needed 
+
+# Define artifacts to save
+artifacts:
+  objects:
+    location: 'gs://${_ARTIFACTS_BUCKET}/test-reports/${BUILD_ID}/'
+    paths: ['test-reports/**/*'] 

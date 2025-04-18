@@ -11,7 +11,7 @@
 - [x] Create a diagram showing the completed agent architecture
 - [x] Enable Vertex AI API (Agent Engine) in Google Cloud project
 - [x] Configure development environment with testing frameworks (Jest, Cucumber)
-- [/] Set up CI/CD pipeline for automated testing (Initial Cloud Build config done, added first integration test)
+- [x] Set up CI/CD pipeline for automated testing (Cloud Build configured with Jest and Cucumber test reporting)
 
 ### Orchestrator Agent Development
 - [ ] Define BDD test scenarios for the Orchestrator Agent
