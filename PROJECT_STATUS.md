@@ -49,9 +49,9 @@
 - [ ] Implement feedback loop for continuous improvement
 
 ### Integration & Deployment
-- [ ] Integrate all agents with the Orchestrator
-- [ ] Implement end-to-end testing of the complete workflow
-- [ ] Optimize for performance and cost
+- [/] Integrate all agents with the Orchestrator
+- [/] Implement end-to-end testing of the complete workflow
+- [/] Optimize for performance and cost (CI/CD environment troubleshooting in progress)
 - [ ] Deploy to production environment
 - [ ] Create user documentation and API reference
 
@@ -75,9 +75,15 @@ Our architecture demonstrates Google Agent Engine capabilities through:
 - **Telemetry & Debugging** - OpenTelemetry tracing allows for efficient agent debugging and optimization
 - **End-to-End Workflow** - Complete product research and recommendation flow demonstrates practical business application
 
+## CI/CD Pipeline Status
+- Cloud Build integration active
+- Configured for automated testing with Jest and Cucumber
+- Optimized builder configuration to use compatible versions (Node.js 19 with Cucumber 9.6.0)
+- Working on resolving deployment and testing pipeline issues
+
 ## Notes
 - Refer to `Readme.txt` for technical notes and further instructions.
 - Refer to `DEPLOYMENT.md` for deployment strategy details.
 - Update this checklist as development progresses.
 
-<!-- Trigger build: 2025-04-18T17:50Z --> 
+<!-- Trigger build: 2025-04-18T18:30Z --> 
