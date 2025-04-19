@@ -15,6 +15,7 @@ module.exports = {
       'json:test-reports/cucumber-report.json',
       'html:test-reports/cucumber-report.html'
     ],
+    tags: 'not @wip',
     publishQuiet: true
   }
 }; 
