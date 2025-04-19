@@ -17,7 +17,7 @@
 - [x] Define BDD test scenarios for the Orchestrator Agent
 - [x] Implement TDD unit tests for Orchestrator Agent core functionality
 - [x] Build Orchestrator Agent using Agent Development Kit (ADK)
-- [/] Implement agent state management and conversation handling (Routing to specialized agents implemented)
+- [/] Implement agent state management and conversation handling (Routing implemented, BDD steps added as pending)
 - [ ] Add metrics and telemetry for monitoring
 
 ### Product Research Agent
@@ -80,11 +80,13 @@ Our architecture demonstrates Google Agent Engine capabilities through:
 - Configured for automated testing with Jest and Cucumber
 - Updated dependencies to be compatible with Node.js 19 environment
 - Optimized builder configuration to use compatible versions (Node.js 19 with Cucumber 9.6.0)
-- Working on resolving deployment and testing pipeline issues
+- Working on resolving deployment and testing pipeline issues (Build failed due to undefined Cucumber steps; added pending step definitions)
 
 ## Notes
 - Refer to `Readme.txt` for technical notes and further instructions.
 - Refer to `DEPLOYMENT.md` for deployment strategy details.
+- Use `./get_logs.sh` to fetch logs for the most recent Cloud Build run.
 - Update this checklist as development progresses.
 
 <!-- Trigger build: 2025-04-19T10:00Z --> 
+<!-- Test commit to trigger build and check logsBucket configuration --> 
