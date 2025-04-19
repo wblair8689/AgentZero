@@ -2,6 +2,7 @@
 
 ## Project Overview
 - **Google Cloud project name:** AgentZero
+- **Google Cloud project id:** agentzero-457213
 - **Google account:** bill@whbiv.com
 - **Purpose:** Experiment with Google agent capabilities and develop a team of agents to identify great products to sell online.
 

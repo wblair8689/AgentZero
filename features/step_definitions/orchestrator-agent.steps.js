@@ -2,40 +2,41 @@ const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('chai');
 const assert = require('assert');
 
-// Create a manual mock for VertexAI
-const mockGenerateContent = () => Promise.resolve({
-  response: {
-    text: () => 'ProductResearch'
-  }
+// Import our jest helper
+const jest = require('../setup/jest-cucumber.setup');
+
+// Mock the Vertex AI package before importing the orchestrator agent
+// This is similar to what's done in the Jest test file
+jest.mock('@google-cloud/vertexai', () => {
+  return {
+    VertexAI: jest.fn().mockImplementation(() => {
+      return {
+        getGenerativeAI: jest.fn().mockImplementation(() => {
+          return {
+            getGenerativeModel: jest.fn().mockImplementation(() => {
+              return {
+                generateContent: jest.fn().mockImplementation((prompt) => {
+                  // Simple mock that returns agents based on query content
+                  const mockResponse = {
+                    response: {
+                      text: () => 'ProductResearch'
+                    }
+                  };
+                  return Promise.resolve(mockResponse);
+                })
+              };
+            })
+          };
+        })
+      };
+    })
+  };
 });
 
-const mockVertexAI = {
-  getGenerativeAI: () => ({
-    getGenerativeModel: () => ({
-      generateContent: mockGenerateContent
-    })
-  })
-};
+// Import the original module AFTER mocking
+const { OrchestratorAgent } = require('../../src/agents/orchestrator-agent');
 
-// Mock the OrchestratorAgent implementation
-class OrchestratorAgent {
-  constructor(config) {
-    this.config = config;
-    this.ready = true;
-  }
-
-  async initialize() {
-    return { id: 'test-agent-id' };
-  }
-
-  isReady() {
-    return this.ready;
-  }
-}
-
-// Export the mock for other files to use
-// This replaces the actual import that was previously: const { OrchestratorAgent } = require('../../src/agents/orchestrator-agent');
-
+// Global variables for test state
 let orchestratorAgent;
 let agentInstance;
 let agentConfigured = false;
@@ -55,45 +56,71 @@ Given('the Orchestrator Agent is configured with ADK', function () {
     projectId: 'test-project',
     location: 'us-central1'
   });
+  
   agentConfigured = true;
   console.log("Simulating ADK configuration for Orchestrator Agent.");
 });
 
 When('the agent is initialized', async function () {
-  // Initialize the agent
-  agentInstance = await orchestratorAgent.initialize();
-  if (agentConfigured) {
-    orchestratorAgent = { id: 'orchestrator-123', status: 'ready' }; // Example instance
-    console.log("Simulating agent initialization.");
-  } else {
-    throw new Error("Agent cannot be initialized without configuration.");
+  try {
+    // Initialize the agent using the actual method
+    agentInstance = await orchestratorAgent.initialize();
+    
+    if (!agentConfigured) {
+      throw new Error("Agent cannot be initialized without configuration.");
+    }
+    
+    console.log("Agent initialized successfully with mock VertexAI.");
+  } catch (error) {
+    console.error("Error during initialization:", error);
+    throw error;
   }
 });
 
 Then('it should be ready to accept commands', function () {
   expect(orchestratorAgent.isReady()).to.be.true;
-  assert.strictEqual(orchestratorAgent?.status, 'ready', 'Agent should be ready');
   console.log("Checking if agent is ready to accept commands.");
 });
 
 Then('it should return a valid agent instance', function () {
   expect(agentInstance).to.not.be.undefined;
   expect(agentInstance).to.have.property('id');
-  assert.ok(orchestratorAgent, 'Should have a valid agent instance');
-  assert.ok(orchestratorAgent.id, 'Agent instance should have an ID');
+  expect(orchestratorAgent).to.not.be.undefined;
+  expect(orchestratorAgent.id).to.not.be.undefined;
   console.log("Checking for a valid agent instance.");
 });
 
 // Stubs for the WIP scenarios
 Given('the Orchestrator Agent is running', function () {
-  if (!orchestratorAgent || orchestratorAgent.status !== 'ready') {
-     orchestratorAgent = { id: 'orchestrator-123', status: 'ready', context: {} }; // Ensure it's 'running'
-     console.log("Ensuring Orchestrator Agent is running for the test.");
+  // Use the actual class but ensure it's initialized
+  if (!orchestratorAgent || !orchestratorAgent.isReady()) {
+    orchestratorAgent = new OrchestratorAgent({
+      name: 'Orchestrator',
+      description: 'Coordinates specialized agents for product research',
+      projectId: 'test-project',
+      location: 'us-central1'
+    });
+    
+    // Since we already mocked VertexAI at the module level, we can initialize directly
+    // but we'll simulate that it's already initialized for this step
+    orchestratorAgent.ready = true;
+    orchestratorAgent.id = 'orchestrator-123';
+    
+    console.log("Ensuring Orchestrator Agent is running for the test with proper mocks.");
   }
   agentConfigured = true; // Assume configured if running
 });
 
 Given('the Product Research Agent is available', function () {
+  // Register mock Product Research Agent
+  const mockProcessTask = jest.fn().mockImplementation(() => {
+    return Promise.resolve({ response: 'Product information' });
+  });
+  
+  orchestratorAgent.registerAgent('ProductResearch', {
+    processTask: mockProcessTask
+  });
+  
   console.log("Simulating availability of Product Research Agent.");
 });
 
@@ -215,4 +242,31 @@ Then('present the final product recommendations', function () {
   lastResponse = `Final Recommendations: ${finalRecommendations.join(', ')}`;
 });
 
-// Add other placeholder definitions as needed 
+// Create a proper mock for VertexAI that matches the expected structure
+function createMockVertexAI() {
+  // Mock the generateContent function to return a properly structured response
+  const mockGenerateContent = jest.fn().mockImplementation(() => {
+    return Promise.resolve({
+      response: {
+        text: () => 'ProductResearch'
+      }
+    });
+  });
+
+  // Create the model object
+  const mockModel = {
+    generateContent: mockGenerateContent
+  };
+
+  // Create the generativeAI object
+  const mockGenerativeAI = {
+    getGenerativeModel: jest.fn().mockImplementation(() => mockModel)
+  };
+
+  // Create the full VertexAI mock object with actual function
+  const mockVertexAI = {
+    getGenerativeAI: jest.fn().mockImplementation(() => mockGenerativeAI)
+  };
+
+  return mockVertexAI;
+} 
