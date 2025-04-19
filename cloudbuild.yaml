@@ -73,3 +73,5 @@ artifacts:
   objects:
     location: 'gs://${_ARTIFACTS_BUCKET}/test-reports/${BUILD_ID}/'
     paths: ['test-reports/**/*'] 
+
+# Trigger build test 
