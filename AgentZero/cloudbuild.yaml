@@ -46,7 +46,8 @@ steps:
 
 # Configure the build options - Required for service account
 options:
-  logging: CLOUD_LOGGING_ONLY # Required when a service account is specified
+  logging: GCS_ONLY # Send logs only to the specified GCS bucket
+  logsBucket: 'gs://agentzero-build-logs' # Store logs in the designated bucket
   # Alternative options if needed:
   # logging: NONE
   # default_logs_bucket_behavior: REGIONAL_USER_OWNED_BUCKET
