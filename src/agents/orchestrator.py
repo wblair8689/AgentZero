@@ -85,7 +85,7 @@ class OrchestratorAgent:
         
     def route_request(self, request: str, request_id: Optional[str] = None) -> Dict[str, Any]:
         """
-        Routes a user request to the appropriate specialized agent.
+        Routes a user request. May delegate to a specialized agent or generate a plan.
         
         Args:
             request: The user's request text.
@@ -111,24 +111,39 @@ class OrchestratorAgent:
             context = self.conversation_contexts[request_id]
             logger.info(f"Using existing context for request {request_id}: {context}")
             
+        # Simple check for high-level planning requests
+        request_lower = request.lower()
+        if "profitable niche" in request_lower or "drop shipping" in request_lower or "business plan" in request_lower:
+            plan = "I will collaborate with experts to answer question"
+            logger.info(f"Request identified as high-level planning. Generating plan: {plan}")
+            # Update context if needed
+            self.conversation_contexts[request_id] = request # Store the original complex request
+            return {
+                "status": "success",
+                "action": "plan_generated",
+                "plan": plan,
+                "request_id": request_id
+            }
+            
+        # --- Existing Routing Logic --- 
         # In a real implementation, we would use Vertex AI for routing
         # For this implementation, we'll use keyword matching
         agent_type = None
-        if "headphones" in request.lower() or "product" in request.lower():
+        if "headphones" in request_lower or "product" in request_lower or "gadgets" in request_lower:
             agent_type = "ProductResearchAgent"
-        elif "market" in request.lower() or "watches" in request.lower():
+        elif "market" in request_lower or "watches" in request_lower:
             agent_type = "MarketAnalysisAgent"
-        elif "profit" in request.lower() or "sales" in request.lower():
+        elif "profit" in request_lower or "sales" in request_lower:
             agent_type = "SalesOpportunityAgent"
-        elif "evaluate" in request.lower() or "score" in request.lower():
+        elif "evaluate" in request_lower or "score" in request_lower:
             agent_type = "ProductEvaluationAgent"
         else:
             agent_type = "ProductResearchAgent"  # Default
             
-        # Store or update context based on the request
+        # Store or update context based on the request (if not a planning request)
         if context is None:
             # Extract keywords from the request to establish context
-            keywords = [word for word in request.lower().split() 
+            keywords = [word for word in request_lower.split() 
                        if len(word) > 4 and word not in ["about", "information", "what", "where", "when", "would", "should"]]
             context = " ".join(keywords)
             
@@ -137,6 +152,7 @@ class OrchestratorAgent:
             
         response = {
             "status": "success",
+            "action": "delegation", # Changed from "delegated_to" to "action"
             "delegated_to": agent_type,
             "request_id": request_id,
             "context": context
@@ -145,6 +161,7 @@ class OrchestratorAgent:
         # If we have a registered agent of this type, delegate the task
         if agent_type in self.specialized_agents:
             try:
+                logger.info(f"Delegating task to {agent_type} for request: {request}")
                 agent_response = self.delegate_task(agent_type, {
                     "query": request,
                     "context": context
@@ -153,6 +170,13 @@ class OrchestratorAgent:
             except Exception as e:
                 logger.error(f"Error delegating to {agent_type}: {e}")
                 response["agent_error"] = str(e)
+        else:
+            logger.warning(f"Agent type {agent_type} determined but no agent registered.")
+            response["status"] = "error"
+            response["message"] = f"No agent available for {agent_type}"
+            # Remove delegation info if no agent available
+            del response["delegated_to"]
+            del response["action"]
                 
         return response
         
@@ -250,9 +274,31 @@ if __name__ == '__main__':
     if not gcp_project:
         print("Error: GCP_PROJECT_ID environment variable not set.")
     else:
-        print(f"Attempting to initialize OrchestratorAgent for project {gcp_project} in {gcp_location}...")
-        agent = OrchestratorAgent(project_id=gcp_project, location=gcp_location)
-        if agent.is_ready():
-            print("Agent initialized successfully and is ready.")
-        else:
-            print(f"Agent initialization failed: {agent.get_status_message()}") 
+        orchestrator = OrchestratorAgent(project_id=gcp_project, location=gcp_location)
+        if orchestrator.is_ready():
+            # Register dummy agents for testing
+            class DummyAgent:
+                def process_task(self, task_data):
+                    return {"result": "success", "data": task_data, "source": self.__class__.__name__}
+            class DummyPRA(DummyAgent):
+                pass
+            class DummyMAA(DummyAgent):
+                pass
+
+            orchestrator.register_agent("ProductResearchAgent", DummyPRA())
+            orchestrator.register_agent("MarketAnalysisAgent", DummyMAA())
+
+            # Test basic delegation
+            print("\nTesting Delegation:")
+            response1 = orchestrator.route_request("research wireless headphones")
+            print(json.dumps(response1, indent=2))
+
+            # Test planning request
+            print("\nTesting Planning Request:")
+            response2 = orchestrator.route_request("Find a profitable niche for a drop shipping business")
+            print(json.dumps(response2, indent=2))
+
+            # Test context
+            print("\nTesting Context:")
+            response3 = orchestrator.route_request("Tell me more about the market", request_id=response1['request_id'])
+            print(json.dumps(response3, indent=2)) 

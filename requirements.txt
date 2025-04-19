@@ -1,4 +1,6 @@
 Flask
 behave
 expects
-google-cloud-aiplatform 
+google-cloud-aiplatform
+PyHamcrest
+# Add other dependencies below 
