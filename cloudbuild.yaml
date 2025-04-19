@@ -46,7 +46,8 @@ steps:
 
 # Configure the build options - Required for service account
 options:
-  logging: CLOUD_LOGGING_ONLY # Required when a service account is specified
+  logging: LEGACY # Changed from CLOUD_LOGGING_ONLY to enable GCS logs for streaming
+  logsBucket: 'gs://${_ARTIFACTS_BUCKET}/logs' # Added to specify log storage location
   # Alternative options if needed:
   # logging: NONE
   # default_logs_bucket_behavior: REGIONAL_USER_OWNED_BUCKET
